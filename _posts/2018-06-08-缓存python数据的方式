@@ -1,1 +1,6 @@
-test
+
+## 在python中进行序列化的方式
+
+- pickle、cPickle
+- np.saver
+- hd5f
