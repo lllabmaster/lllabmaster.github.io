@@ -1,0 +1,14 @@
+---
+layout: post
+title: pytorch1.0 多进程读取错误
+date: 2019-02-15 15:32:24.000000000 +09:00
+---
+
+配置了DataLoader的多进程，但是遇到两个任务
+```
+train_dataloader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=2, drop_last=True, collate_fn=netsltr_collate)
+```
+
+（1） 第一个错误是RuntimeError: CUDA error: initialization error，处理这个错误，需要在程序启动的位置，设置torch.multiprocessing.set_start_method("spawn", force=True)
+
+（2） 第二个错误，是RuntimeError: Assertion `self->allocator() != nullptr'，这个是pytorch1.0的bug，需要重新安装下最新的包
