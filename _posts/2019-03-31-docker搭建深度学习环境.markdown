@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 使用docker搭建深度学习系统
-date: 2016-02-15 15:32:24.000000000 +09:00
+date: 2019-03-31
 comments: true
 ---
 
