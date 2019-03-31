@@ -1,0 +1,20 @@
+---
+layout: post
+title: 使用docker搭建深度学习系统
+date: 2016-02-15 15:32:24.000000000 +09:00
+comments: true
+---
+
+1. 安装nvidia driver，如果之前有安装过，能用则用，不能用的话，重新安装，重新安装需要卸载干净，网上有教程
+
+2. 安装docker
+2.1 配置当前用户到docker用户组
+
+3. 安装docker-nvidia-v2
+
+4. 安装tensorflow、pytorch等docker环境
+
+**备注：**如果是在本地搭建深度环境，那么还需要cuda、cudnn，下面两个网址需要参考
+
+1. https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
+2. https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
