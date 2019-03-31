@@ -63,3 +63,12 @@
 .highlight .vg { color: #4d4d4c } /* Name.Variable.Global */
 .highlight .vi { color: #4d4d4c } /* Name.Variable.Instance */
 .highlight .il { color: #f5871f } /* Literal.Number.Integer.Long */
+
+body div.content {}
+    body div.content code.has-jax {
+        font: inherit;
+        font-size: 100%;
+        background: inherit;
+        border: inherit;
+        color: #000000;
+    }
