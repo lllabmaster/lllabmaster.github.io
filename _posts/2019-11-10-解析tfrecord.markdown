@@ -1,0 +1,82 @@
+---
+layout: post
+title: 解析tfrecord
+date: 2019-11-10
+comments: true
+---
+
+## 解析tfrecord
+
+```python
+import tensorflow as tf
+from google.protobuf.json_format import MessageToJson
+import codecs
+import json
+
+result = []
+for example in tf.python_io.tf_record_iterator("/tmp/train.tfrecord"):
+    #json_example = json.loads(MessageToJson(tf.train.Example.FromString(example))) # tf.train.Example的保存方式
+    json_example = json.loads(MessageToJson(tf.train.SequenceExample.FromString(example))) # tf.train.SequenceExample 的保存方式
+    result.append(json_example)
+```
+
+可以通过上面步骤，方便的解析tfrecord
+
+## 验证tf-serving传输的pb格式
+
+1. 线上Java生成tf.train.SequenceExample格式进行请求的方式
+
+```java
+
+int sampleNum = N; // 样本数量
+SESSION_SIZE_KEY = "__session_size__"; // PB中的标志key
+Map<String,Object> commonFeatures = null; // 共享特征，进行设置
+Map<String,List<Object>> featureList = null; // 非共享特征，进行设置
+
+SequenceExample.Builder exampleBuilder = SequenceExample.newBuilder(); // 用来序列化item样本
+FeatureLists.Builder featureListsBuilder = FeatureLists.newBuilder(); // 用来序列化item特征
+Features.Builder contextBuilder = Features.newBuilder(); // 用户序列化context特征
+
+contextBuilder.putFeature(SESSION_SIZE_KEY,toIntFeature(Optional.of(Double.valueOf(sampleNum))).build()); // 首先把样本数量设置好
+
+// 处理String类型的特征
+for (FeatureConfig featureConfig : config.getStringFeatures()) {
+    if(featureConfig.getIsShared()){
+        // 如果是共享特征
+        String feature = commonFeatures.get(featureConfig.getName()).toString();
+        contextBuilder.putFeature(featureConfig.getName(),toStringFeature(feature).build());
+    }else {
+        Iterator<Object> featureListIt = featureList.get(featureConfig.getName()).stream().iterator();
+        FeatureList.Builder feature = buildStringFeautures(featureListIt);
+        featureListsBuilder.putFeatureList(featureConfig.getName(),feature.build());
+    }
+}
+
+// 处理 Float和List特征
+// ........ 省略
+
+exampleBuilder.setContext(contextBuilder); // 设置共享特征
+exampleBuilder.setFeatureLists(featureListsBuilder); // 设置非共享
+
+TensorProto.Builder protoBuilder = TensorProto.newBuilder().setDtype(DataType.DT_STRING); // 序列化为字符串
+builder.addStringVal(exampleBuilder.build().toByteString());
+
+FileOutputStream fout = new FileOutputStream(new File(tfSavedPath));
+fout.write(protoBuilder.getStringVal(0).toByteArray()); // 写入文件
+
+```
+
+2. 进行解析单条记录的方式
+
+```python
+import tensorflow as tf
+from google.protobuf.json_format import MessageToJson
+
+example = tf.train.SequenceExample()    
+example.ParseFromString(open("/tmp/request.tfrecord", 'rb').read())
+example = MessageToJson(example)
+
+print(json.loads(example))
+```
+
+3. 也可以按照上面遍历文件的方式，解析所有记录
