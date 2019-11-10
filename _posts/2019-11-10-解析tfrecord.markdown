@@ -24,7 +24,7 @@ for example in tf.python_io.tf_record_iterator("/tmp/train.tfrecord"):
 
 ## 验证tf-serving传输的pb格式
 
-1. 线上Java生成tf.train.SequenceExample格式进行请求的方式
+(1). 线上Java生成tf.train.SequenceExample格式进行请求的方式
 
 ```java
 
@@ -66,7 +66,7 @@ fout.write(protoBuilder.getStringVal(0).toByteArray()); // 写入文件
 
 ```
 
-2. 进行解析单条记录的方式
+(2). 进行解析单条记录的方式
 
 ```python
 import tensorflow as tf
@@ -79,4 +79,4 @@ example = MessageToJson(example)
 print(json.loads(example))
 ```
 
-3. 也可以按照上面遍历文件的方式，解析所有记录
+(3). 也可以按照上面遍历文件的方式，解析所有记录
