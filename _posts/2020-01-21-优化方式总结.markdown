@@ -14,4 +14,4 @@ comments: true
 6. RMSprop
 7. Adam
 
-![](assets/images/avatar.jpg)
+![测试](/assets/images/avatar.jpg)
