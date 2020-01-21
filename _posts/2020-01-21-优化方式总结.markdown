@@ -1,0 +1,17 @@
+---
+layout: post
+title: 优化方式总结
+date: 2020-01-21
+comments: true
+---
+
+**优化方式总结**：
+1. SGD、Batch GD、Mini-batch GD
+2. Newton、BFGS
+3. L-BFGS
+4. Momentum
+5. Adagrad
+6. RMSprop
+7. Adam
+
+![](assets/images/avatar.jpg)
