@@ -1,0 +1,121 @@
+---
+layout: post
+title: Spark操作二进制文件
+date: 2020-04-13
+comments: true
+---
+
+## Spark输出和输入Sequence二进制文件
+
+```scala
+// 输出
+rdd.map(x => worker(x.getString(0)))
+    .map{
+        case data =>
+            (NullWritable.get(), new BytesWritable(data))
+    }
+    .saveAsSequenceFile(hdfs_path)
+
+// 输入
+val rdd = sc.sequenceFile[NullWritable, BytesWritable](hdfs_path)
+  .map(_._2.copyBytes())
+```
+
+## Spark输出二进制文件
+
+输出的二进制文件，是原始格式的二进制，采用little-end的方式
+```scala
+
+// 输出格式
+class BinaryFileOutputFormat extends FileOutputFormat[NullWritable,BytesWritable] {
+
+    @throws[InterruptedException]
+    @throws[IOException]
+    override def getRecordWriter (taskAttemptContext: TaskAttemptContext): RecordWriter[NullWritable, BytesWritable]  = {
+        val conf = taskAttemptContext.getConfiguration
+        val file = this.getDefaultWorkFile(taskAttemptContext, "")
+        val fs = file.getFileSystem(conf)
+        val fsdos = fs.create(file, true)
+        val writer = new BinaryWriter(fsdos)
+        return new RecordWriter[NullWritable,BytesWritable]() {
+            @throws[InterruptedException]
+            @throws[IOException]
+            override def write (key: NullWritable, value: BytesWritable): Unit = {
+                writer.write(value.getBytes, 0, value.getLength)
+            }
+            @throws[InterruptedException]
+            @throws[IOException]
+            override def close (context: TaskAttemptContext): Unit = {
+                fsdos.close()
+            }
+        }
+    }
+}
+
+// 写的类
+class BinaryWriter(val output: DataOutput) {
+
+    @throws[IOException]
+    def write (record: Array[Byte], offset: Int, length: Int): Unit = {
+        val len = this.toInt64LE(length.toLong)
+        this.output.write(len)
+        this.output.write(this.toInt32LE(Crc32C.maskedCrc32c(len)))
+        this.output.write(record, offset, length)
+        this.output.write(this.toInt32LE(Crc32C.maskedCrc32c(record, offset, length)))
+    }
+
+    @throws[IOException]
+    def write (record: Array[Byte]): Unit = {
+        this.write(record, 0, record.length)
+    }
+
+    private def toInt64LE (data: Long) = {
+        val buff = new Array[Byte](8)
+        val bb = ByteBuffer.wrap(buff)
+        bb.order(ByteOrder.LITTLE_ENDIAN)
+        bb.putLong(data)
+        buff
+    }
+
+    private def toInt32LE (data: Int) = {
+        val buff = new Array[Byte](4)
+        val bb = ByteBuffer.wrap(buff)
+        bb.order(ByteOrder.LITTLE_ENDIAN)
+        bb.putInt(data)
+        buff
+    }
+}
+
+// 使用方式
+rdd.map(x => worker(x.getString(0)))
+    .map{
+        case data =>
+            (NullWritable.get(), new BytesWritable(data))
+    }
+    .saveAsNewAPIHadoopFile(hdfs_path,
+        classOf[NullWritable],
+        classOf[BytesWritable],
+        classOf[BinaryFileOutputFormat])
+```
+
+## Spark操作tfrecords
+
+**1. 使用插件**
+```scala
+trainDf.repartition(50).write.format("tfrecords").mode("overwrite").option("recordType", "Example").save(s"${output}/dt=${bizdate}_train")
+/*
+<dependency>
+    <groupId>org.tensorflow</groupId>
+    <artifactId>spark-tensorflow-connector_2.11</artifactId>
+    <version>1.13.1</version>
+</dependency>
+*/
+```
+**2. 直接保存字节**
+
+可以采用上述spark输出二进制文件的方式，输出tf的字节，存下来的，就是tfrecords，这种保存下来的方式，可以像上面一样，直接用工具读
+```scala
+spark.read.format("tfrecords").option("recordType", "Example").load(hdfs_path)
+```
+
+
