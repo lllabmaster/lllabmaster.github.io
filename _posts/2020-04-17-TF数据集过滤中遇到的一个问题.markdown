@@ -1,0 +1,50 @@
+---
+layout: post
+title: 
+date: 2020-04-17
+comments: true
+---
+
+在TF的数据集中，我开始是这样写的
+
+
+```
+dataset = dataset \
+    .shuffle(buffer_size=buffer_size).repeat(epochs).batch(batch_size)  \
+    .map(lambda x: _parse_example(x, cols_description), num_parallel_calls=CPU_PARALLE_NUM) \
+    .filter(lambda x,y: _negative_filter(y)) \
+    
+
+def _negative_filter(x):
+    return tf.cond(tf.greater(1.001, x[0][0]), true_fn = lambda : tf.constant(random.random() >= 0.5, dtype=tf.bool), false_fn = lambda : tf.constant(True, dtype=tf.bool)) 
+
+def _parse_example(serialized_example, description) :
+    example = tf.parse_example(serialized_example, description, name='input_tfrecord')
+    return example, tf.cast(example['label'], dtype=tf.float32)
+```
+
+这样就会遇到一个问题，在TF中，所有的环节都是图，在 _negative_filter 函数中，tf.constant(random.random() >= 0.5, dtype=tf.bool)其实是一个常量，也就是说每一个样本（批次）来了，拿到的都是一个常量，也就没办法做到过滤功能了。
+
+所以表现就是，我有50%的概率，会训练不起来，因为所有的样本可能都被过滤了（50%概率）
+
+同时，这里面还有一个问题：我的filter在batch后面，也就是说我过滤的是整个batch，过滤方式是这个batch的第一个元素和1.001比较，明显这种过滤方式并不是我想要的
+
+所以改为下面这样，才正常：
+（1）batch放到最后，这样子我是对单条样本的过滤，而不是对batch
+（2）_negative_filter函数中，使用tf.random.uniform定义图中的节点，而不是一个常量
+
+```
+dataset = dataset \
+    .shuffle(buffer_size=buffer_size).repeat(epochs) \
+    .map(lambda x: _parse_example(x, cols_description), num_parallel_calls=CPU_PARALLE_NUM) \
+    .filter(lambda x,y: _negative_filter(y)) \
+    .batch(batch_size) 
+
+def _negative_filter(x):
+    return tf.cond(tf.greater(1.001, x[0]), true_fn = lambda : tf.random.uniform(shape=[1]) >= 0.5, false_fn = lambda : tf.constant(True, dtype=tf.bool)) 
+
+
+def _parse_example(serialized_example, description) :
+    example = tf.parse_single_example(serialized_example, description, name='input_tfrecord')
+    return example, tf.cast(example['label'], dtype=tf.float32)
+```
