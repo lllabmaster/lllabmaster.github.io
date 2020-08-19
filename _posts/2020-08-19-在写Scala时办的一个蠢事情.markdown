@@ -1,0 +1,26 @@
+---
+layout: post
+title: 在写Scala时办的一个蠢事情
+date: 2020-08-19
+comments: true
+---
+
+昨天在写Spark任务时，办了一个蠢事情，排查了很久才发现
+```scala
+val data: List[Info] = ...
+val df = rdd.flatMap(x => func(x,data)).toDF("a", "b").write...tfrecords
+```
+
+在这个逻辑中，data是一个几十万的List，会在func里面随机访问下标。
+
+
+程序其他地方运行都比较快，但是到了最后这一步就很慢，一开始以为是rdd转换dataframe慢，但是测了很久，并且根据以往经验，并不慢。
+
+
+以为保存tfrecord慢，但是测试后也不慢。
+
+
+最终发现，是在func函数很慢。这才发现使用了List，而不是Array。
+
+
+这就是我昨天做的蠢事情，好蠢。
