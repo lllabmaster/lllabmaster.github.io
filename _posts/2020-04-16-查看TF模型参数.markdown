@@ -9,7 +9,7 @@ comments: true
 import tensorflow as tf
 from tensorflow.python import pywrap_tensorflow
 ck_path = './model.ckpt-433235'
-reader = pywrap_tensorflow.NewCheckpointReader(ck_path) # 创建一个reader
+reader = pywrap_tensorflow.NewCheckpointReader(ck_path) # 创建一个reader tf.compat.v1.train.NewCheckpointReader(ck_path)
 var_to_shape_map = reader.get_variable_to_shape_map() # 获得每一个节点，对应的shape
 print(var_to_shape_map)
 numpy_tensor = reader.get_tensor('final_fc_1/kernel') # 获得某一个节点的tensor，返回是个numpy-array
