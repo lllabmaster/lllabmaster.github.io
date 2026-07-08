@@ -1,0 +1,10 @@
+---
+layout: post
+title: 网络日记
+date: 2026-07-08
+comments: true
+---
+
+![GLM模型的思维过程](/assets/images/post_images/overthinking.jpg)
+
+*图：GLM模型的思维过程 - 思考过度现象*
