@@ -1,10 +1,12 @@
 ---
 layout: post
-title: 网络日记
+title: 2026-07-08 网络日记
 date: 2026-07-08
 comments: true
 ---
 
-![GLM模型的思维过程](/assets/images/post_images/overthinking.jpg)
+-------
 
-*图：GLM模型的思维过程 - 思考过度现象*
+GLM-5.2似乎在兼容Claude Code的时候并不太友好，如果更改了
+
+![GLM模型的思维过程](/assets/images/post_images/overthinking.jpg)
