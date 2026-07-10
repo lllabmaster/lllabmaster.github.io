@@ -75,12 +75,15 @@ title: 文章分类
   <ul class="category-list">
     <li><a href="#" data-category="all" class="category-link active">全部</a></li>
     {% for category in site.categories %}
+      {% assign cat_name = category[0] | strip %}
+      {% if cat_name != '' %}
       <li>
         <a href="#{{ category[0] }}" data-category="{{ category[0] }}" class="category-link">
-          #{{ category[0 }}
+          #{{ category[0] }}
           <span class="category-count">({{ category[1].size }})</span>
         </a>
       </li>
+      {% endif %}
     {% endfor %}
   </ul>
 
@@ -93,16 +96,19 @@ title: 文章分类
 // 存储所有分类数据
 const categoriesData = {
   {% for category in site.categories %}
+    {% assign cat_name = category[0] | strip %}
+    {% if cat_name != '' %}
     "{{ category[0] }}": [
       {% for post in category[1] %}
         {
-          "title": "{{ post.title | escape }}",
+          "title": {{ post.title | json }},
           "url": "{{ post.url }}",
           "date": "{{ post.date | date: "%F" }}",
-          "excerpt": "{{ post.content | strip_html | strip_newlines | truncate: 200 | escape }}"
+          "excerpt": {{ post.content | strip_html | strip_newlines | truncate: 200 | json }}
         }{% unless forloop.last %},{% endunless %}
       {% endfor %}
     ]{% unless forloop.last %},{% endunless %}
+    {% endif %}
   {% endfor %}
 };
 
@@ -138,7 +144,7 @@ function renderPosts(category) {
       <h3 class="post-title">
         <a href="${post.url}">${post.title}</a>
       </h3>
-      <div class="post-date">${post.date} ${category !== 'all' ? ` • #${post.category || category}` : ''}</div>
+      <div class="post-date">${post.date} ${category !== 'all' && post.category ? ` • #${post.category}` : ''}</div>
       <div class="post-excerpt">${post.excerpt}&hellip;</div>
     </div>
   `).join('');
