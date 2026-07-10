@@ -9,7 +9,7 @@ layout: default
       {% if page.categories %}
         &#8226; <span class="post-meta__categories">
         {% for category in page.categories %}
-          <a href="/categories/{{ category | url_encode }}/">#{{ category }}</a>{% unless forloop.last %} {% endunless %}
+          <a href="/categories/#{{ category }}">#{{ category }}</a>{% unless forloop.last %} {% endunless %}
         {% endfor %}
         </span>
       {% endif %}
