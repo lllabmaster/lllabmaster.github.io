@@ -22,6 +22,7 @@ title: 文章分类
   text-decoration: none;
   border-radius: 4px;
   transition: all 0.3s;
+  cursor: pointer;
 }
 .category-list a:hover,
 .category-list a.active {
@@ -92,33 +93,39 @@ title: 文章分类
   </div>
 </div>
 
-<script>
-// 存储所有分类数据
-const categoriesData = {
+<!-- 隐藏的数据存储 -->
+<script id="categories-data" type="application/json">
+{
   {% for category in site.categories %}
     {% assign cat_name = category[0] | strip %}
     {% if cat_name != '' %}
     "{{ category[0] }}": [
       {% for post in category[1] %}
         {
-          "title": {{ post.title | json }},
+          "title": "{{ post.title | replace: '"', '\\"' }}",
           "url": "{{ post.url }}",
           "date": "{{ post.date | date: "%F" }}",
-          "excerpt": {{ post.content | strip_html | strip_newlines | truncate: 200 | json }}
+          "excerpt": "{{ post.content | strip_html | strip_newlines | truncate: 200 | replace: '"', '\\"' | replace: newline, ' ' }}"
         }{% unless forloop.last %},{% endunless %}
       {% endfor %}
     ]{% unless forloop.last %},{% endunless %}
     {% endif %}
   {% endfor %}
-};
+}
+</script>
+
+<script>
+// 从隐藏的 script 标签读取数据
+const categoriesData = JSON.parse(document.getElementById('categories-data').textContent);
 
 // 收集所有文章
 let allPosts = [];
 for (const category in categoriesData) {
-  allPosts = allPosts.concat(categoriesData[category].map(post => ({
+  const postsWithCategory = categoriesData[category].map(post => ({
     ...post,
     category: category
-  })));
+  }));
+  allPosts = allPosts.concat(postsWithCategory);
 }
 // 按日期排序
 allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -144,7 +151,7 @@ function renderPosts(category) {
       <h3 class="post-title">
         <a href="${post.url}">${post.title}</a>
       </h3>
-      <div class="post-date">${post.date} ${category !== 'all' && post.category ? ` • #${post.category}` : ''}</div>
+      <div class="post-date">${post.date}${post.category ? ` • #${post.category}` : ''}</div>
       <div class="post-excerpt">${post.excerpt}&hellip;</div>
     </div>
   `).join('');
@@ -154,11 +161,12 @@ function renderPosts(category) {
 document.querySelectorAll('.category-link').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
-    const category = e.target.dataset.category;
+    const clickedEl = e.target.closest('.category-link');
+    const category = clickedEl.dataset.category;
 
     // 更新活动状态
     document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active'));
-    e.target.classList.add('active');
+    clickedEl.classList.add('active');
 
     // 渲染文章
     renderPosts(category);
