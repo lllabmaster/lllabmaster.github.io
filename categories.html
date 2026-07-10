@@ -1,0 +1,39 @@
+---
+layout: page
+title: 文章分类
+---
+
+<div class="entry-content">
+  <h2>分类列表</h2>
+  <ul class="category-list">
+    {% for category in site.categories %}
+      <li>
+        <a href="/categories/{{ category[0] | url_encode }}/">#{{ category[0] }}</a>
+        <span class="category-count">({{ category[1].size }} 篇)</span>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<style>
+.category-list {
+  list-style: none;
+  padding: 0;
+}
+.category-list li {
+  margin: 10px 0;
+  font-size: 1.1em;
+}
+.category-list a {
+  color: #2a2a2a;
+  text-decoration: none;
+  font-weight: bold;
+}
+.category-list a:hover {
+  color: #e06363;
+}
+.category-count {
+  color: #999;
+  font-size: 0.9em;
+}
+</style>

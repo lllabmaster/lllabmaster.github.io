@@ -8,6 +8,10 @@ description: 琐碎的日常~
 
 permalink: /:year/:month/:day/:title/
 
+# Categories
+category_dir: categories
+category_layout: category
+
 # Format
 highlighter: rouge
 
