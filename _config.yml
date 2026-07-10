@@ -6,7 +6,7 @@ description: 琐碎的日常~
 
 
 
-permalink: /:year/:month/:title/
+permalink: /:year/:month/:day/:title/
 
 # Format
 highlighter: rouge
