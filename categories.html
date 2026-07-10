@@ -3,37 +3,195 @@ layout: page
 title: 文章分类
 ---
 
-<div class="entry-content">
-  <h2>分类列表</h2>
-  <ul class="category-list">
-    {% for category in site.categories %}
-      <li>
-        <a href="/categories/{{ category[0] | url_encode }}/">#{{ category[0] }}</a>
-        <span class="category-count">({{ category[1].size }} 篇)</span>
-      </li>
-    {% endfor %}
-  </ul>
-</div>
-
 <style>
 .category-list {
   list-style: none;
   padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 .category-list li {
-  margin: 10px 0;
-  font-size: 1.1em;
+  margin: 0;
 }
 .category-list a {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #f0f0f0;
   color: #2a2a2a;
   text-decoration: none;
-  font-weight: bold;
+  border-radius: 4px;
+  transition: all 0.3s;
 }
-.category-list a:hover {
-  color: #e06363;
+.category-list a:hover,
+.category-list a.active {
+  background: #e06363;
+  color: white;
 }
 .category-count {
+  font-size: 0.85em;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+#posts-container {
+  margin-top: 30px;
+}
+.post-item {
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #eee;
+}
+.post-item:last-child {
+  border-bottom: none;
+}
+.post-title {
+  font-size: 1.3em;
+  margin-bottom: 8px;
+}
+.post-title a {
+  color: #2a2a2a;
+  text-decoration: none;
+}
+.post-title a:hover {
+  color: #e06363;
+}
+.post-date {
   color: #999;
   font-size: 0.9em;
 }
+.post-excerpt {
+  margin-top: 10px;
+  color: #666;
+}
+.empty-message {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
 </style>
+
+<div id="app">
+  <h2>分类列表</h2>
+  <ul class="category-list">
+    <li><a href="#" data-category="all" class="category-link active">全部</a></li>
+    {% for category in site.categories %}
+      <li>
+        <a href="#{{ category[0] }}" data-category="{{ category[0] }}" class="category-link">
+          #{{ category[0 }}
+          <span class="category-count">({{ category[1].size }})</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div id="posts-container">
+    <!-- 文章列表将通过 JavaScript 动态加载 -->
+  </div>
+</div>
+
+<script>
+// 存储所有分类数据
+const categoriesData = {
+  {% for category in site.categories %}
+    "{{ category[0] }}": [
+      {% for post in category[1] %}
+        {
+          "title": "{{ post.title | escape }}",
+          "url": "{{ post.url }}",
+          "date": "{{ post.date | date: "%F" }}",
+          "excerpt": "{{ post.content | strip_html | strip_newlines | truncate: 200 | escape }}"
+        }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    ]{% unless forloop.last %},{% endunless %}
+  {% endfor %}
+};
+
+// 收集所有文章
+let allPosts = [];
+for (const category in categoriesData) {
+  allPosts = allPosts.concat(categoriesData[category].map(post => ({
+    ...post,
+    category: category
+  })));
+}
+// 按日期排序
+allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+// 渲染文章列表
+function renderPosts(category) {
+  const container = document.getElementById('posts-container');
+  let posts;
+
+  if (category === 'all') {
+    posts = allPosts;
+  } else {
+    posts = categoriesData[category] || [];
+  }
+
+  if (posts.length === 0) {
+    container.innerHTML = '<p class="empty-message">该分类下暂无文章</p>';
+    return;
+  }
+
+  container.innerHTML = posts.map(post => `
+    <div class="post-item">
+      <h3 class="post-title">
+        <a href="${post.url}">${post.title}</a>
+      </h3>
+      <div class="post-date">${post.date} ${category !== 'all' ? ` • #${post.category || category}` : ''}</div>
+      <div class="post-excerpt">${post.excerpt}&hellip;</div>
+    </div>
+  `).join('');
+}
+
+// 处理分类点击
+document.querySelectorAll('.category-link').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const category = e.target.dataset.category;
+
+    // 更新活动状态
+    document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active'));
+    e.target.classList.add('active');
+
+    // 渲染文章
+    renderPosts(category);
+
+    // 更新 URL hash
+    if (category === 'all') {
+      history.pushState(null, null, ' ');
+    } else {
+      location.hash = category;
+    }
+  });
+});
+
+// 根据初始 hash 显示对应分类
+function initFromHash() {
+  const hash = location.hash.slice(1);
+  const activeLink = document.querySelector(`[data-category="${hash || 'all'}"]`);
+
+  if (activeLink) {
+    document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active'));
+    activeLink.classList.add('active');
+    renderPosts(hash || 'all');
+  } else {
+    renderPosts('all');
+  }
+}
+
+// 监听 hash 变化
+window.addEventListener('hashchange', () => {
+  const hash = location.hash.slice(1) || 'all';
+  const activeLink = document.querySelector(`[data-category="${hash}"]`);
+
+  if (activeLink) {
+    document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active'));
+    activeLink.classList.add('active');
+    renderPosts(hash);
+  }
+});
+
+// 初始化
+initFromHash();
+</script>

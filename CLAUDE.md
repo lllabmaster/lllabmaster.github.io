@@ -73,7 +73,7 @@ comments: true
 
 ### 分类功能
 
-博客支持文章分类功能：
+博客支持文章分类功能（使用 Jekyll 原生 + 前端 JavaScript 实现）：
 
 1. **在文章中设置分类** - 在 front matter 中添加 `categories` 字段：
 
@@ -92,9 +92,11 @@ comments: true
 categories: [diary, tech]
 ```
 
-2. **查看分类** - 访问 `/categories/` 查看所有分类及文章数量
+2. **查看分类** - 访问 `/categories/` 查看所有分类及文章列表
 
-3. **分类页面** - 每个分类都有独立页面，路径为 `/categories/分类名/`
+3. **分类浏览** - 点击分类标签可查看该分类下的所有文章，使用 URL hash 实现切换（如 `/categories/#diary`）
+
+**说明**：此方案不依赖 GitHub Actions 或额外脚本，分类数据由 Jekyll 原生生成，前端 JavaScript 处理分类切换。
 
 ## 内容规范
 
