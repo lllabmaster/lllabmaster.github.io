@@ -86,6 +86,7 @@ categories: diary
 comments: true
 ---
 ```
+其中文章标题，如果是日志的话，应该带上日期
 
 支持多个分类：
 ```yaml
