@@ -1,0 +1,19 @@
+---
+layout: post
+title: 日记 2026-07-23
+date: 2026-07-23
+categories: diary
+comments: true
+---
+
+# 看好 world model + llm
+
+前几天，在想模型和人类接口的时候说到：
+
+> 多模态是通向**自然智能**的唯一道路
+
+我觉得应该修正下，多模态是技术实现，而更底层的接口上应该是 world model + llm。
+
+world model构建了人类跟自然最基础的交互，llm是人类文明/思维的过程。
+
+如果想达到AGI，world model + llm 是必由之路。
