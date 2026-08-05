@@ -51,7 +51,7 @@ bundle exec jekyll serve
 ### 创建新文章
 
 1. 在 `_posts/` 目录下创建新文件
-2. 文件命名格式: `YYYY-MM-DD-title.markdown` 或 `YYYY-MM-DD-title.md`
+2. 文件命名格式: `YYYY-MM-DD-title.markdown` 
 3. 使用以下 front matter 模板:
 
 ```yaml
