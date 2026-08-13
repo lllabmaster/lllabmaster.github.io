@@ -51,8 +51,9 @@ bundle exec jekyll serve
 ### 创建新文章
 
 1. 在 `_posts/` 目录下创建新文件
-2. 文件命名格式: `YYYY-MM-DD-title.markdown` 
-3. 使用以下 front matter 模板:
+2. 文件命名格式: `YYYY-MM-DD-title.markdown`
+3. 日记类文章命名示例: `2026-08-13-日记.markdown`
+4. 使用以下 front matter 模板:
 
 ```yaml
 ---
@@ -63,6 +64,8 @@ categories: category-name
 comments: true
 ---
 ```
+
+日记类文章 title 格式: `2026-08-13 日记`
 
 ### 重要配置
 
@@ -80,13 +83,14 @@ comments: true
 ```yaml
 ---
 layout: post
-title: 文章标题
+title: 2026-07-10 日记
 date: 2026-07-10
 categories: diary
 comments: true
 ---
 ```
-其中文章标题，如果是日志的话，应该带上日期
+
+日记类文章：文件名用 `YYYY-MM-DD-日记.markdown`，title 用 `YYYY-MM-DD 日记` 格式
 
 支持多个分类：
 ```yaml
@@ -113,5 +117,5 @@ categories: [diary, tech]
 ## 注意事项
 
 1. 文章日期会出现在 URL 中，确保文件名日期准确
-2. 中文文件名在 URL 中会被编码，建议使用拼音或英文
+2. 日记类文章使用中文文件名：`YYYY-MM-DD-日记.markdown`
 3. Disqus 评论需要在文章中设置 `comments: true`
