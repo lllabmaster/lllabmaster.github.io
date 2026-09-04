@@ -1,0 +1,14 @@
+---
+layout: post
+title: 2026-09-04 日记
+date: 2026-09-04
+categories: diary
+comments: true
+---
+
+# huggingface daily上的中国论文
+
+最近HF Daily上的论文，最显著的变化就是基本都是中国人写的，我想说明两个问题：
+- 在AI技术上，华人占据了非常强的地位，甚至让HF Daily被占据了；
+- AI实在太火爆了，尤其是在国内；
+- 欧洲基本在这次AI浪潮里消失嘞。
